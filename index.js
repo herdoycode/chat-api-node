@@ -8,6 +8,7 @@ import auth from "./routes/auth.js";
 import chats from "./routes/chats.js";
 import messages from "./routes/messages.js";
 import users from "./routes/users.js";
+import { Server } from "socket.io";
 
 dotenv.config();
 const app = express();
@@ -32,8 +33,6 @@ mongoose
   .then(() => console.log("Connected to MongoDB..."))
   .catch((err) => console.log(`Could't connected to MongoDB... ${err}`));
 
-import { Server } from "socket.io";
-
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -44,10 +43,9 @@ let activeUsers = [];
 
 io.on("connection", (socket) => {
   // add new User
-  socket.on("new-user-add", (newUserId) => {
-    // if user is not added previously
-    if (!activeUsers.some((user) => user.userId === newUserId)) {
-      activeUsers.push({ userId: newUserId, socketId: socket.id });
+  socket.on("add-user", (user) => {
+    if (!activeUsers.find((u) => u._id === user._id)) {
+      activeUsers.push({ ...user, socketId: socket.id });
     }
     // send all active users to new user
     io.emit("get-users", activeUsers);
