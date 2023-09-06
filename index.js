@@ -10,6 +10,7 @@ import messages from "./routes/messages.js";
 import anonys from "./routes/anonys.js";
 import users from "./routes/users.js";
 import { Server } from "socket.io";
+import _ from "lodash";
 
 dotenv.config();
 const app = express();
@@ -55,10 +56,15 @@ io.on("connection", (socket) => {
 
   // send message to a specific user
   socket.on("send-message", (data) => {
-    const { receiverId } = data;
-    const user = activeUsers.find((user) => user.userId === receiverId);
+    const { receiverId, _id, chatId, sender, content } = data;
+    const user = activeUsers.find((user) => user._id === receiverId);
     if (user) {
-      io.to(user.socketId).emit("recieve-message", data);
+      io.to(user.socketId).emit("recieve-message", {
+        _id,
+        sender,
+        content,
+        chatId,
+      });
     }
   });
 
