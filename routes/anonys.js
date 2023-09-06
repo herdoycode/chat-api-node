@@ -11,6 +11,7 @@ router.post("/", async (req, res) => {
     text,
   });
   await anony.save();
+  res.send(anony);
 });
 
 router.get("/", async (req, res) => {
